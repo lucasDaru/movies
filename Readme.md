@@ -10,7 +10,7 @@ Para executar a aplicação Movie TexoIT, siga estas etapas:
    Clone o repositório do projeto de onde ele está hospedado.
 
     ```bash
-   git clone <url_do_repositório>
+   git clone https://github.com/lucasDaru/movies.git
     ```
 
 2. **Construir o Projeto:**  
@@ -141,10 +141,6 @@ Essencialmente, essa consulta retorna os produtores com o menor intervalo entre 
 - **Propósito:** Obter os produtores com os maiores intervalos entre dois prêmios consecutivos, incluindo empates.
 - **Consulta SQL:** Consulte a consulta SQL rotulada como "producer-controller" no código-fonte.
 - **Endpoint:** `/api/producer/max-interval`
-
-## Contribuições
-
-Se você deseja contribuir para o desenvolvimento da aplicação Movie TexoIT, sinta-se à vontade para bifurcar o repositório, fazer suas alterações e enviar uma solicitação de pull. Suas contribuições são muito apreciadas!
 
 ## Licença
 
