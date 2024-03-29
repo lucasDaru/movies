@@ -12,7 +12,6 @@ import java.io.Serializable;
 @Table(name = "movie")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString

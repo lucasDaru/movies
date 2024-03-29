@@ -106,18 +106,6 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
         return result;
     }
 
-    public Map<String, List<ProducerIntervalDTO>> findProducerIntervals() {
-        Map<String, List<ProducerIntervalDTO>> result = new HashMap<>();
-
-        List<ProducerIntervalDTO> maxIntervals = mapToDTO(repository.findMaxIntervals());
-        result.put("max", maxIntervals);
-
-        List<ProducerIntervalDTO> minIntervals = mapToDTO(repository.findMinIntervals());
-        result.put("min", minIntervals);
-
-        return result;
-    }
-
     private List<ProducerIntervalDTO> mapToDTO(List<Object[]> results) {
         return results.stream().map(this::mapToObject).toList();
     }

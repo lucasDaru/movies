@@ -41,7 +41,7 @@ spring:
             naming:
                 physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
             ddl-auto: create-drop
-        show-sql: true
+        show-sql: false
         defer-datasource-initialization: true
 
 springdoc:

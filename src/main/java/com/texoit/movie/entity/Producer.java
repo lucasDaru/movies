@@ -13,7 +13,6 @@ import java.util.Set;
 @Table(name = "producer")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString

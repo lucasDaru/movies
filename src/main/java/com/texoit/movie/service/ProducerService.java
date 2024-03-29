@@ -8,6 +8,5 @@ import java.util.Map;
 
 public interface ProducerService extends BaseService<Producer> {
 
-    Map<String, List<ProducerIntervalDTO>> findProducerIntervals();
     Map<String, List<ProducerIntervalDTO>> findProducerIntervalsMinMax();
 }
