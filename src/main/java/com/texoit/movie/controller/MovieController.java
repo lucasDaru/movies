@@ -1,5 +1,6 @@
 package com.texoit.movie.controller;
 
+import com.texoit.movie.exception.MovieException;
 import com.texoit.movie.service.MovieService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class MovieController {
     @ApiOperation(value = "Import CSV file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponses(
             value = {
-                @ApiResponse(code = 200, message = "File uploaded successfully"),
-                @ApiResponse(code = 400, message = "Bad request")
+                    @ApiResponse(code = 200, message = "File uploaded successfully"),
+                    @ApiResponse(code = 400, message = "Bad request")
             }
     )
     @RequestMapping(
@@ -43,7 +44,7 @@ public class MovieController {
         try {
             movieService.processCSVFile(file);
             return ResponseEntity.ok("The CSV file processed was succeed.");
-        } catch (IOException e) {
+        } catch (MovieException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error when process the CSV file: " + e.getMessage());
         }

@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface ProducerRepository extends JpaRepository<Producer, Long> {
 
     Optional<Producer> findByName(String name);
+
     @Query(value = "WITH movie_producer_titles AS ( " +
             "    SELECT " +
             "        m.release_year AS release_year, " +
@@ -102,7 +103,6 @@ public interface ProducerRepository extends JpaRepository<Producer, Long> {
             "ORDER BY " +
             "    yearInterval ASC;", nativeQuery = true)
     List<Object[]> findMinIntervals();
-
 
     @Query("SELECT pd FROM Producer pd JOIN pd.movies mv WHERE mv.winner IS TRUE")
     List<Producer> findAllByMovieWinner();

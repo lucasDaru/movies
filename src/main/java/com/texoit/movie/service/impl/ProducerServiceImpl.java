@@ -11,14 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Producer>  implements ProducerService {
+public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Producer> implements ProducerService {
 
     @Autowired
     private MovieRepository movieRepository;
@@ -29,11 +28,11 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
 
     public Map<String, List<ProducerIntervalDTO>> findProducerIntervalsMinMax() {
         List<Producer> allByMovieWinner = repository.findAllByMovieWinner();
-        Map<Long, ProducerIntervalDTO> minMapByInterval = new HashMap<>();
-        Map<Long, ProducerIntervalDTO> maxMapByInterval = new HashMap<>();
+        Map<Long, ProducerIntervalDTO> mapByInterval = new HashMap<>();
 
         for (Producer producer : allByMovieWinner) {
-            List<Movie> movies = producer.getMovies();
+            List<Movie> movies = producer.getMovies().stream().filter(Movie::getWinner).collect(Collectors.toList());
+
             if (movies.size() < 2) {
                 continue;
             }
@@ -68,22 +67,44 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
                 dto.setPreviousWin(previousWin);
                 dto.setFollowingWin(followingWin);
 
-                if (!minMapByInterval.containsKey(interval) || previousWin < minMapByInterval.get(interval).getPreviousWin()) {
-                    minMapByInterval.put(interval, dto);
-                }
-
-                if (!maxMapByInterval.containsKey(interval) || previousWin > maxMapByInterval.get(interval).getPreviousWin()) {
-                    maxMapByInterval.put(interval, dto);
+                if (!mapByInterval.containsKey(interval) || previousWin < mapByInterval.get(interval).getPreviousWin()) {
+                    mapByInterval.put(interval, dto);
                 }
             }
         }
 
         Map<String, List<ProducerIntervalDTO>> result = new HashMap<>();
-        result.put("min", new ArrayList<>(minMapByInterval.values()));
-        result.put("max", new ArrayList<>(maxMapByInterval.values()));
+
+        List<ProducerIntervalDTO> minProducerIntervals = new ArrayList<>();
+        int minYearInterval = Integer.MAX_VALUE;
+
+        for (ProducerIntervalDTO dto : mapByInterval.values()) {
+            if (dto.getYearInterval() < minYearInterval) {
+                minProducerIntervals.clear();
+                minProducerIntervals.add(dto);
+                minYearInterval = dto.getYearInterval();
+            } else if (dto.getYearInterval() == minYearInterval) {
+                minProducerIntervals.add(dto);
+            }
+        }
+
+        List<ProducerIntervalDTO> maxProducerIntervals = new ArrayList<>();
+        int maxYearInterval = Integer.MIN_VALUE;
+
+        for (ProducerIntervalDTO dto : mapByInterval.values()) {
+            if (dto.getYearInterval() > maxYearInterval) {
+                maxProducerIntervals.clear();
+                maxProducerIntervals.add(dto);
+                maxYearInterval = dto.getYearInterval();
+            } else if (dto.getYearInterval() == maxYearInterval) {
+                maxProducerIntervals.add(dto);
+            }
+        }
+
+        result.put("min", new ArrayList<>(minProducerIntervals));
+        result.put("max", new ArrayList<>(maxProducerIntervals));
         return result;
     }
-
 
     public Map<String, List<ProducerIntervalDTO>> findProducerIntervals() {
         Map<String, List<ProducerIntervalDTO>> result = new HashMap<>();
@@ -98,9 +119,7 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
     }
 
     private List<ProducerIntervalDTO> mapToDTO(List<Object[]> results) {
-        return results.stream()
-                .map(this::mapToObject)
-                .toList();
+        return results.stream().map(this::mapToObject).toList();
     }
 
     private ProducerIntervalDTO mapToObject(Object[] result) {
@@ -111,6 +130,4 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
         dto.setFollowingWin((Integer) result[3]);
         return dto;
     }
-
-
 }

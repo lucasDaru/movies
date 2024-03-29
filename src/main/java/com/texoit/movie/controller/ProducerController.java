@@ -24,10 +24,4 @@ public class ProducerController {
     public ResponseEntity<Map<String, List<ProducerIntervalDTO>>> findProducerIntervalsMinMax() {
         return ResponseEntity.ok().body(producerService.findProducerIntervalsMinMax());
     }
-
-    @GetMapping("/min-max-query")
-    public ResponseEntity<Map<String, List<ProducerIntervalDTO>>> findStudioAndWinCount() {
-        return ResponseEntity.ok().body(producerService.findProducerIntervals());
-    }
-
 }

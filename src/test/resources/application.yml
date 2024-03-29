@@ -4,20 +4,21 @@ server:
         include-binding-errors: always
     port: 8080
 
-#    spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 spring:
     profiles:
         active: default
     mvc:
-      pathmatch:
-          matching-strategy: ant_path_matcher
+        pathmatch:
+            matching-strategy: ant_path_matcher
     application:
         name: texoit_movie
     datasource:
         driver-class-name: org.h2.Driver
-        url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
         username: sa
         password: sa
+        hikari:
+            idle-timeout: 10000
     devtools:
         restart:
             enabled: true
@@ -27,14 +28,21 @@ spring:
             enabled: true
     entity-scan:
         base-packages: com.texoit.movie.entity
+    sql:
+        init:
+            platform: h2
     h2:
         console:
             path: /h2-console
+            enabled: true
     jpa:
         hibernate:
             dialect: org.hibernate.dialect.H2Dialect
             naming:
                 physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+            ddl-auto: create-drop
+        show-sql: true
+        defer-datasource-initialization: true
 
 springdoc:
     swagger-ui:
