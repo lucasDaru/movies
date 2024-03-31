@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 @Service
 public class MovieServiceImpl implements MovieService {
@@ -135,4 +136,17 @@ public class MovieServiceImpl implements MovieService {
             throw new MovieException(MovieException.Message.TYPE_OF_FILE);
         }
     }
+
+    public List<Movie> findMoviesByYear(Integer year) {
+        return movieRepository.findAllByYear(year);
+    }
+
+    public List<Movie> findMoviesByYearAndWinner(Integer year, boolean winner) {
+        return movieRepository.findAllByYearAndWinner(year, winner);
+    }
+
+    public List<Movie> findWinningMoviesOrderedByYear() {
+        return movieRepository.findByWinnerTrueOrderByYearAsc();
+    }
+
 }

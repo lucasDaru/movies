@@ -9,6 +9,8 @@ import com.texoit.movie.service.ProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -28,7 +30,7 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
 
     public Map<String, List<ProducerIntervalDTO>> findProducerIntervalsMinMax() {
         List<Producer> allByMovieWinner = repository.findAllByMovieWinner();
-        Map<Long, ProducerIntervalDTO> mapByInterval = new HashMap<>();
+        MultiValueMap<Long, ProducerIntervalDTO> mapByInterval = new LinkedMultiValueMap<>();
 
         for (Producer producer : allByMovieWinner) {
             List<Movie> movies = producer.getMovies().stream().filter(Movie::getWinner).collect(Collectors.toList());
@@ -67,42 +69,14 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
                 dto.setPreviousWin(previousWin);
                 dto.setFollowingWin(followingWin);
 
-                if (!mapByInterval.containsKey(interval) || previousWin < mapByInterval.get(interval).getPreviousWin()) {
-                    mapByInterval.put(interval, dto);
-                }
+                mapByInterval.add(interval, dto);
             }
         }
 
         Map<String, List<ProducerIntervalDTO>> result = new HashMap<>();
 
-        List<ProducerIntervalDTO> minProducerIntervals = new ArrayList<>();
-        int minYearInterval = Integer.MAX_VALUE;
-
-        for (ProducerIntervalDTO dto : mapByInterval.values()) {
-            if (dto.getYearInterval() < minYearInterval) {
-                minProducerIntervals.clear();
-                minProducerIntervals.add(dto);
-                minYearInterval = dto.getYearInterval();
-            } else if (dto.getYearInterval() == minYearInterval) {
-                minProducerIntervals.add(dto);
-            }
-        }
-
-        List<ProducerIntervalDTO> maxProducerIntervals = new ArrayList<>();
-        int maxYearInterval = Integer.MIN_VALUE;
-
-        for (ProducerIntervalDTO dto : mapByInterval.values()) {
-            if (dto.getYearInterval() > maxYearInterval) {
-                maxProducerIntervals.clear();
-                maxProducerIntervals.add(dto);
-                maxYearInterval = dto.getYearInterval();
-            } else if (dto.getYearInterval() == maxYearInterval) {
-                maxProducerIntervals.add(dto);
-            }
-        }
-
-        result.put("min", new ArrayList<>(minProducerIntervals));
-        result.put("max", new ArrayList<>(maxProducerIntervals));
+        result.put("min", mapByInterval.get(Collections.min(mapByInterval.keySet())));
+        result.put("max", mapByInterval.get(Collections.max(mapByInterval.keySet())));
         return result;
     }
 
@@ -117,5 +91,13 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
         dto.setPreviousWin((Integer) result[2]);
         dto.setFollowingWin((Integer) result[3]);
         return dto;
+    }
+
+    public Optional<Producer> findProducerByName(String name) {
+        return repository.findByName(name);
+    }
+
+    public List<Producer> findAllProducersWithWinningMovies() {
+        return repository.findAllByMovieWinner();
     }
 }

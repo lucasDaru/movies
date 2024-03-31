@@ -13,4 +13,7 @@ import java.util.List;
 public interface MovieService {
     void processCSVFile(MultipartFile multipartFile) throws MovieException;
     void readFileCSVFile(InputStream inputStream) throws MovieException;
+    List<Movie> findMoviesByYear(Integer year);
+    List<Movie> findMoviesByYearAndWinner(Integer year, boolean winner);
+    List<Movie> findWinningMoviesOrderedByYear();
 }

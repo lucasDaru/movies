@@ -6,7 +6,7 @@ server:
 
 spring:
     profiles:
-        active: default
+        active: test
     mvc:
         pathmatch:
             matching-strategy: ant_path_matcher
