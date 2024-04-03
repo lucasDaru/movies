@@ -6,18 +6,18 @@ import com.texoit.movie.entity.Producer;
 import com.texoit.movie.repository.MovieRepository;
 import com.texoit.movie.repository.ProducerRepository;
 import com.texoit.movie.service.ProducerService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional
 public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Producer> implements ProducerService {
 
@@ -33,43 +33,50 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
         MultiValueMap<Long, ProducerIntervalDTO> mapByInterval = new LinkedMultiValueMap<>();
 
         for (Producer producer : allByMovieWinner) {
-            List<Movie> movies = producer.getMovies().stream().filter(Movie::getWinner).collect(Collectors.toList());
+            List<Movie> movies = producer.getMovies().stream()
+                    .filter(Movie::getWinner)
+                    .sorted(Comparator.comparingInt(Movie::getYear))
+                    .collect(Collectors.toList());
 
-            if (movies.size() < 2) {
+            int numMovies = movies.size();
+            if (numMovies < 2) {
                 continue;
             }
 
-            movies.sort(Comparator.comparingInt(Movie::getYear));
+            if (numMovies > 2) {
+                for (int i = 0; i < numMovies - 1; i++) {
+                    Integer startYear = movies.get(i).getYear();
+                    Integer endYear = movies.get(i + 1).getYear();
+                    int movieInterval = endYear - startYear;
 
-            Integer previousWin = null;
-            Integer followingWin = null;
-            Long interval = null;
+                    if (startYear.equals(endYear)) {
+                        continue;
+                    }
 
-            for (Movie movie : movies) {
-                Integer year = movie.getYear();
-                if (followingWin == null || followingWin > year) {
-                    previousWin = year;
+                    ProducerIntervalDTO dto = new ProducerIntervalDTO();
+                    dto.setProducer(producer.getName());
+                    dto.setYearInterval(movieInterval);
+                    dto.setPreviousWin(startYear);
+                    dto.setFollowingWin(endYear);
+
+                    mapByInterval.add((long) movieInterval, dto);
+                }
+            } else {
+                Integer startYear = movies.get(0).getYear();
+                Integer endYear = movies.get(1).getYear();
+                int movieInterval = endYear - startYear;
+
+                if (startYear.equals(endYear)) {
+                    continue;
                 }
 
-                if (previousWin != null && (followingWin == null || followingWin < year)) {
-                    followingWin = year;
-                }
-
-                if (previousWin != null && followingWin != null) {
-                    LocalDate previousWinLocalDate = LocalDate.of(previousWin, 1, 1);
-                    LocalDate followingWinLocalDate = LocalDate.of(followingWin, 1, 1);
-                    interval = ChronoUnit.YEARS.between(previousWinLocalDate, followingWinLocalDate);
-                }
-            }
-
-            if (previousWin != null && followingWin != null && previousWin < followingWin) {
                 ProducerIntervalDTO dto = new ProducerIntervalDTO();
                 dto.setProducer(producer.getName());
-                dto.setYearInterval(interval.intValue());
-                dto.setPreviousWin(previousWin);
-                dto.setFollowingWin(followingWin);
+                dto.setYearInterval(movieInterval);
+                dto.setPreviousWin(startYear);
+                dto.setFollowingWin(endYear);
 
-                mapByInterval.add(interval, dto);
+                mapByInterval.add((long) movieInterval, dto);
             }
         }
 
@@ -77,6 +84,8 @@ public class ProducerServiceImpl extends BaseServiceImpl<ProducerRepository, Pro
 
         result.put("min", mapByInterval.get(Collections.min(mapByInterval.keySet())));
         result.put("max", mapByInterval.get(Collections.max(mapByInterval.keySet())));
+
+        log.info("Result: {}", result);
         return result;
     }
 

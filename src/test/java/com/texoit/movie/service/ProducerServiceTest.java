@@ -42,8 +42,8 @@ public class ProducerServiceTest {
     public void testFindProducerIntervalsMinMaxSize() {
         Map<String, List<ProducerIntervalDTO>> result = producerService.findProducerIntervalsMinMax();
 
+        assertEquals(1, result.get("min").size());
         assertEquals(1, result.get("max").size());
-        assertEquals(5, result.get("min").size());
     }
 
 
@@ -58,15 +58,15 @@ public class ProducerServiceTest {
         assertEquals(1990, result.get("min").get(0).getPreviousWin());
         assertEquals(1991, result.get("min").get(0).getFollowingWin());
 
-        assertEquals("Allan Carr", result.get("max").get(0).getProducer());
-        assertEquals(42, result.get("max").get(0).getYearInterval());
-        assertEquals(1980, result.get("max").get(0).getPreviousWin());
-        assertEquals(2022, result.get("max").get(0).getFollowingWin());
+        assertEquals("Matthew Vaughn", result.get("max").get(0).getProducer());
+        assertEquals(13, result.get("max").get(0).getYearInterval());
+        assertEquals(2002, result.get("max").get(0).getPreviousWin());
+        assertEquals(2015, result.get("max").get(0).getFollowingWin());
     }
 
     private void runMethod() {
         try {
-            Resource resource = resourceLoader.getResource("classpath:/movies.csv");
+            Resource resource = resourceLoader.getResource("classpath:/movielist.csv");
             movieService.readFileCSVFile(resource.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
